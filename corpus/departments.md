@@ -1,0 +1,10 @@
+MicroClub is supported by eight specialized departments that manage the club’s logistics, branding, and human capital. Each department plays a vital role in the club’s sustainability and growth.
+
+– Internal Relations & Human Resources: This department manages member relations and ensures smooth interpersonal dynamics within the club. It handles operations related to member welfare, support, and feedback, while remaining the sole authority in charge of members’ data and private information.
+– External Relations: Builds and maintains strategic partnerships with external organizations and corporate entities. This department secures the necessary sponsorships and resources to support club initiatives.
+– Logistics & Event Management: Responsible for the comprehensive planning and execution of all events and club activities, ensuring all physical and logistics requirements are met for successful operations.
+– Marketing: Focuses on managing the club’s public image and outreach strategy. This department is responsible for promoting the club’s values and activities to the student body and the general public.
+– Design: Develops all visual branding and graphics. This department ensures that all club materials maintain a professional aesthetic and adhere to the official visual identity of MicroClub.
+– Communication: Oversees official announcements and external messaging. It is responsible for content creation and ensuring that information is disseminated clearly and effectively across all platforms.
+– Multimedia: Produces and manages all audiovisual content, including professional photography, video production, and animations, to document and promote the club’s journey.
+– Development: Focuses on the technical infrastructure of the club by building and maintaining internal tools, software, and digital systems designed to enhance operational efficiency.
