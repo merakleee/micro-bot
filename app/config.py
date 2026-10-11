@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     member_token: str = ""
     admin_api_key: str = ""
+    database_path: str = "data/registry.sqlite3"
     openrouter_api_key: str = ""
     openrouter_model: str = "google/gemma-4-31b-it:free"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"

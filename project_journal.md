@@ -11,3 +11,6 @@
 - A similarity threshold in RAG is a numerical cutoff used to filter out low-relevance document chunks before sending them to the LLM.This saves quota and prevents hallucination.
 - Why def and not async def for routes? (Blocking work such as embedding or parsing would freeze the event loop in an async def. FastAPI runs def in a thread pool.)
 - Why secrets.compare_digest? (Constant-time comparison prevents timing attacks that guess a token character by character.)
+
+## THIRD DAY 
+-The sqlite3 module comes built-in with Python, meaning you do not need to run a pip install command to use it. It provides a lightweight, serverless SQL database engine that reads and writes directly to a file on your disk.
