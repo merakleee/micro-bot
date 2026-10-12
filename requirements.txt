@@ -4,6 +4,8 @@ pydantic-settings
 python-multipart
 pytest
 httpx
+beautifulsoup4
+playwright
 pypdf
 python-docx
 ocrmypdf
