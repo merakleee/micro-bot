@@ -4,3 +4,6 @@ pydantic-settings
 python-multipart
 pytest
 httpx
+pypdf
+python-docx
+ocrmypdf
