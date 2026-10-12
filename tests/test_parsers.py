@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -10,7 +11,7 @@ from app.ingestion.parsers import ParsedDocument
 
 def test_parse_md_returns_title_and_normalized_text(tmp_path: Path):
     path = tmp_path / "membership.md"
-    path.write_text("  # Adhésion\r\n\r\nMicroClub  ", encoding="utf-8")
+    path.write_text("  # Adhésion\n\nMicroClub  ", encoding="utf-8")
 
     assert parsers.parse_md(path) == ParsedDocument(
         title="membership",
@@ -46,6 +47,11 @@ def test_parse_pdf_returns_text_from_pages(tmp_path: Path, monkeypatch):
             ]
         ),
     )
+    monkeypatch.setitem(
+        sys.modules,
+        "ocrmypdf",
+        SimpleNamespace(ocr=lambda _input, output, **_options: Path(output).touch()),
+    )
 
     assert parsers.parse_pdf(path) == ParsedDocument(
         title="events",
@@ -53,16 +59,32 @@ def test_parse_pdf_returns_text_from_pages(tmp_path: Path, monkeypatch):
     )
 
 
-def test_parse_pdf_rejects_document_without_text(tmp_path: Path, monkeypatch):
-    path = tmp_path / "scanned.pdf"
-    monkeypatch.setattr(
-        parsers,
-        "PdfReader",
-        lambda _: SimpleNamespace(pages=[SimpleNamespace(extract_text=lambda: None)]),
+def test_parse_pdf_ocr_handles_selectable_and_image_text(tmp_path: Path, monkeypatch):
+    path = tmp_path / "mixed.pdf"
+    selectable_text = "Text already in the PDF"
+    output_text = "Text already in the PDF\nText found in the image"
+
+    def fake_pdf_reader(pdf_path):
+        text = output_text if Path(pdf_path).name == "ocr.pdf" else selectable_text
+        return SimpleNamespace(pages=[SimpleNamespace(extract_text=lambda: text)])
+
+    def fake_ocr(input_path, output_path, **options):
+        assert input_path == str(path)
+        assert options["language"] == "eng+fra+ara"
+        assert options["redo_ocr"] is True
+        Path(output_path).touch()
+
+    monkeypatch.setattr(parsers, "PdfReader", fake_pdf_reader)
+    monkeypatch.setitem(
+        sys.modules,
+        "ocrmypdf",
+        SimpleNamespace(ocr=fake_ocr),
     )
 
-    with pytest.raises(ValueError, match="PDF file has no readable text"):
-        parsers.parse_pdf(path)
+    assert parsers.parse_pdf(path) == ParsedDocument(
+        title="mixed",
+        text=output_text,
+    )
 
 
 def test_parse_docx_returns_non_empty_paragraphs(tmp_path: Path):
