@@ -6,3 +6,4 @@ pytest
 httpx
 pypdf
 python-docx
+ocrmypdf
