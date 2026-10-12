@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from zipfile import BadZipFile
 
 from docx import Document
@@ -27,12 +28,38 @@ def parse_md(path: Path) -> ParsedDocument:
     return ParsedDocument(title=path.stem, text=text)
 
 
-def parse_pdf(path: Path) -> ParsedDocument:
+def _extract_pdf_pages(path: Path) -> list[str]:
     try:
         reader = PdfReader(path)
-        pages = [(page.extract_text() or "").strip() for page in reader.pages]
+        return [(page.extract_text() or "").strip() for page in reader.pages]
     except (OSError, PdfReadError) as exc:
         raise ValueError(f"Unable to read PDF file: {path}") from exc
+
+
+def parse_pdf(path: Path) -> ParsedDocument:
+    try:
+        import ocrmypdf
+    except ImportError as exc:
+        raise ValueError(
+            "OCR is required for PDF ingestion. Install OCRmyPDF and Tesseract "
+            "with the eng, fra, and ara language data."
+        ) from exc
+
+    try:
+        with TemporaryDirectory() as temporary_directory:
+            ocr_path = Path(temporary_directory) / "ocr.pdf"
+            ocrmypdf.ocr(
+                str(path),
+                str(ocr_path),
+                language="eng+fra+ara",
+                redo_ocr=True,
+                output_type="pdf",
+                jobs=1,
+                progress_bar=False,
+            )
+            pages = _extract_pdf_pages(ocr_path)
+    except Exception as exc:
+        raise ValueError(f"Unable to OCR PDF file: {path}") from exc
 
     text = "\n\n".join(page for page in pages if page)
     if not text:
