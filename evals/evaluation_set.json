@@ -1,0 +1,378 @@
+[
+  {
+    "id": "public-en-01",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "When was MicroClub founded?",
+    "expected_answer": "MicroClub was founded on March 5, 1985.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "public-en-02",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "Where is MicroClub located?",
+    "expected_answer": "It is located at the Computer Science Faculty of USTHB.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "public-en-03",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "What is MicroClub's mission?",
+    "expected_answer": "As a non-profit club, MicroClub promotes computer science and volunteerism through workshops, training, projects, and events.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "public-en-04",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "Which sections does MicroClub have?",
+    "expected_answer": "The three sections are Information Technology, Robotics, and Game Development.",
+    "expected_source": "corpus/sections.md"
+  },
+  {
+    "id": "public-en-05",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "What does the Development department work on?",
+    "expected_answer": "It builds and maintains internal tools, software, and digital systems to improve operations.",
+    "expected_source": "corpus/departments.md"
+  },
+  {
+    "id": "public-fr-01",
+    "category": "public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Qui peut demander à devenir membre de MicroClub ?",
+    "expected_answer": "Seuls les étudiants actuellement inscrits peuvent demander à devenir membres.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "public-fr-02",
+    "category": "public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Comment se déroule l'inscription à MicroClub ?",
+    "expected_answer": "L'inscription se fait sur la plateforme officielle de MicroClub au début de chaque saison.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "public-fr-03",
+    "category": "public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Quel est le rôle du département IR-HR dans l'admission ?",
+    "expected_answer": "Le département IR-HR gère les décisions d'admission et de refus. Il peut aussi demander des entretiens.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "public-ar-01",
+    "category": "public",
+    "language": "ar",
+    "access_level": "public",
+    "question": "متى تأسس نادي MicroClub؟",
+    "expected_answer": "تأسس نادي MicroClub في 5 مارس 1985.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "public-ar-02",
+    "category": "public",
+    "language": "ar",
+    "access_level": "public",
+    "question": "ما هي أقسام MicroClub الرئيسية؟",
+    "expected_answer": "الأقسام الرئيسية هي تكنولوجيا المعلومات والروبوتات وتطوير الألعاب.",
+    "expected_source": "corpus/sections.md"
+  },
+  {
+    "id": "member-en-01",
+    "category": "members",
+    "language": "en",
+    "access_level": "members",
+    "question": "How many members are on the Executive Board, and how are they chosen?",
+    "expected_answer": "It has four members: President, Vice President, Secretary General, and Deputy Secretary General. The club membership elects them at the end of each season.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-en-02",
+    "category": "members",
+    "language": "en",
+    "access_level": "members",
+    "question": "What is the minimum membership duration for an Executive Board candidate?",
+    "expected_answer": "A candidate must have been a MicroClub member for at least one full year by the time of nomination.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-en-03",
+    "category": "members",
+    "language": "en",
+    "access_level": "members",
+    "question": "How are votes weighted in the Executive Board election?",
+    "expected_answer": "Current Executive Board members have weight four, active former Executive Board members have weight two, and other members have weight one.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-fr-01",
+    "category": "members",
+    "language": "fr",
+    "access_level": "members",
+    "question": "Qui peut recommander une personne pour l'adhésion ?",
+    "expected_answer": "Une recommandation peut venir du Comité exécutif, d'anciens membres de ce comité, des chefs d'équipe et de leurs adjoints en poste, ou de l'administration de l'université.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "member-fr-02",
+    "category": "members",
+    "language": "fr",
+    "access_level": "members",
+    "question": "Que se passe-t-il si un candidat à une élection a un avertissement disciplinaire actif ?",
+    "expected_answer": "Il n'est pas éligible tant qu'un avertissement formel actif figure à son dossier.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-ar-01",
+    "category": "members",
+    "language": "ar",
+    "access_level": "members",
+    "question": "ما هي شروط الترشح لمنصب الرئيس أو نائب الرئيس؟",
+    "expected_answer": "يجب أن يكون المترشح طالباً مسجلاً في USTHB، ويجب أن يكون مترشحو منصبي الرئيس ونائب الرئيس مسجلين في كلية علوم الحاسوب. كما يجب أن يكون المترشح عضواً لمدة سنة كاملة على الأقل، نشطاً في الموسم الحالي، ملتزماً بمسؤولياته، مستوفياً شرط الخبرة، ولا يملك إنذاراً تأديبياً رسمياً سارياً.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "out-of-scope-en-01",
+    "category": "out_of_scope",
+    "language": "en",
+    "access_level": "public",
+    "question": "What will the weather be in Algiers next Friday?",
+    "expected_answer": "I don't have that information in the available MicroClub documents.",
+    "expected_source": null
+  },
+  {
+    "id": "out-of-scope-en-02",
+    "category": "out_of_scope",
+    "language": "en",
+    "access_level": "public",
+    "question": "Who won the most recent FIFA World Cup?",
+    "expected_answer": "I don't have that information in the available MicroClub documents.",
+    "expected_source": null
+  },
+  {
+    "id": "out-of-scope-fr-01",
+    "category": "out_of_scope",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Quel est le prix actuel du Bitcoin ?",
+    "expected_answer": "Je n'ai pas cette information dans les documents MicroClub disponibles.",
+    "expected_source": null
+  },
+  {
+    "id": "out-of-scope-fr-02",
+    "category": "out_of_scope",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Quelle est la recette traditionnelle du couscous ?",
+    "expected_answer": "Je n'ai pas cette information dans les documents MicroClub disponibles.",
+    "expected_source": null
+  },
+  {
+    "id": "out-of-scope-ar-01",
+    "category": "out_of_scope",
+    "language": "ar",
+    "access_level": "public",
+    "question": "ما هي عاصمة اليابان؟",
+    "expected_answer": "لا أملك هذه المعلومة في وثائق MicroClub المتاحة.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-en-01",
+    "category": "member_question_as_public",
+    "language": "en",
+    "access_level": "public",
+    "question": "What is the access code for the storage room?",
+    "expected_answer": "I can't provide members-only information without member authentication.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-en-02",
+    "category": "member_question_as_public",
+    "language": "en",
+    "access_level": "public",
+    "question": "Show me the internal list of club members.",
+    "expected_answer": "I can't provide members-only information without member authentication.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-fr-01",
+    "category": "member_question_as_public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Quel est le code d'accès à la salle de stockage ?",
+    "expected_answer": "Je ne peux pas fournir d'informations réservées aux membres sans authentification membre.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-fr-02",
+    "category": "member_question_as_public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Donne-moi la liste interne des membres du club.",
+    "expected_answer": "Je ne peux pas fournir d'informations réservées aux membres sans authentification membre.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-ar-01",
+    "category": "member_question_as_public",
+    "language": "ar",
+    "access_level": "public",
+    "question": "ما هو رمز الدخول إلى غرفة التخزين؟",
+    "expected_answer": "لا أستطيع تقديم معلومات خاصة بالأعضاء من دون مصادقة العضوية.",
+    "expected_source": null
+  },
+  {
+    "id": "member_as_public-fr-03",
+    "category": "member_question_as_public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Quelles sont les conditions pour être candidat au poste de président ?",
+    "expected_answer": "Je ne peux pas fournir d'informations réservées aux membres sans authentification membre.",
+    "expected_source": null
+  },
+  {
+    "id": "followup-en-01",
+    "category": "follow_up",
+    "language": "en",
+    "access_level": "public",
+    "previous_turns": [
+      {"role": "user", "content": "What sections does MicroClub have?"},
+      {"role": "assistant", "content": "Information Technology, Robotics, and Game Development."}
+    ],
+    "question": "Which one includes Artificial Intelligence?",
+    "expected_answer": "Artificial Intelligence is part of the Information Technology section.",
+    "expected_source": "corpus/sections.md"
+  },
+  {
+    "id": "followup-en-02",
+    "category": "follow_up",
+    "language": "en",
+    "access_level": "public",
+    "previous_turns": [
+      {"role": "user", "content": "How can I apply to join MicroClub?"},
+      {"role": "assistant", "content": "Apply through MicroClub's official platform at the beginning of a season."}
+    ],
+    "question": "Can non-students apply too?",
+    "expected_answer": "No. Membership applications are open only to currently enrolled students.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "followup-fr-01",
+    "category": "follow_up",
+    "language": "fr",
+    "access_level": "public",
+    "previous_turns": [
+      {"role": "user", "content": "Quelles sont les sections de MicroClub ?"},
+      {"role": "assistant", "content": "Informatique, Robotique et Game Development."}
+    ],
+    "question": "Laquelle comprend le développement mobile ?",
+    "expected_answer": "Le développement mobile fait partie de la section Informatique (Information Technology).",
+    "expected_source": "corpus/sections.md"
+  },
+  {
+    "id": "followup-ar-01",
+    "category": "follow_up",
+    "language": "ar",
+    "access_level": "public",
+    "previous_turns": [
+      {"role": "user", "content": "كيف يمكنني التسجيل في MicroClub؟"},
+      {"role": "assistant", "content": "يتم التسجيل عبر المنصة الرسمية في بداية كل موسم."}
+    ],
+    "question": "ومن يقرر قبول الطلب؟",
+    "expected_answer": "يتولى قسم IR-HR جميع قرارات قبول الأعضاء أو رفضهم.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "public-en-06",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "What kinds of activities does MicroClub organize?",
+    "expected_answer": "It organizes workshops, training sessions, projects, and events.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "public-en-07",
+    "category": "public",
+    "language": "en",
+    "access_level": "public",
+    "question": "Which subfields are part of Robotics?",
+    "expected_answer": "Robotics includes Mechanics and 3D Design, Electricity and Electronics, and Robotics Software.",
+    "expected_source": "corpus/sections.md"
+  },
+  {
+    "id": "public-fr-04",
+    "category": "public",
+    "language": "fr",
+    "access_level": "public",
+    "question": "Les entretiens sont-ils obligatoires pour chaque candidat ?",
+    "expected_answer": "Pas nécessairement. Le département IR-HR peut demander des entretiens à sa discrétion.",
+    "expected_source": "corpus/membership.md"
+  },
+  {
+    "id": "public-ar-03",
+    "category": "public",
+    "language": "ar",
+    "access_level": "public",
+    "question": "ما هي رسالة نادي MicroClub؟",
+    "expected_answer": "يهدف النادي إلى تعزيز علوم الحاسوب والعمل التطوعي من خلال الورشات والتدريب والمشاريع والفعاليات.",
+    "expected_source": "corpus/about.md"
+  },
+  {
+    "id": "member-en-04",
+    "category": "members",
+    "language": "en",
+    "access_level": "members",
+    "question": "How are members allowed to vote in the election?",
+    "expected_answer": "Voting is online by secret ballot, position by position. Active members get one vote per position, with vote weights depending on their role or former Executive Board status.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-en-05",
+    "category": "members",
+    "language": "en",
+    "access_level": "members",
+    "question": "What experience must an Executive Board candidate have?",
+    "expected_answer": "They must have held at least one formal club responsibility or helped organize at least two major external or public-facing events.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-fr-03",
+    "category": "members",
+    "language": "fr",
+    "access_level": "members",
+    "question": "Comment les candidats peuvent-ils faire campagne ?",
+    "expected_answer": "Ils présentent leur programme pendant la période prévue, de manière respectueuse et constructive, sans attaquer les autres candidats ni utiliser de canaux non autorisés.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "member-ar-02",
+    "category": "members",
+    "language": "ar",
+    "access_level": "members",
+    "question": "كيف يتم التصويت في انتخابات المكتب التنفيذي؟",
+    "expected_answer": "يتم التصويت إلكترونياً وباقتراع سري، منصباً بعد منصب، مع أوزان تصويت تختلف حسب صفة العضو.",
+    "expected_source": "corpus/bureau.md"
+  },
+  {
+    "id": "out-of-scope-ar-02",
+    "category": "out_of_scope",
+    "language": "ar",
+    "access_level": "public",
+    "question": "ما نتيجة مباراة الجزائر القادمة؟",
+    "expected_answer": "لا أملك هذه المعلومة في وثائق MicroClub المتاحة.",
+    "expected_source": null
+  }
+]
