@@ -9,3 +9,4 @@ playwright
 pypdf
 python-docx
 ocrmypdf
+sentence-transformers==6.1.0

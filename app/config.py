@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     openrouter_model: str = "google/gemma-4-31b-it:free"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-
+    embedding_model: str = "intfloat/multilingual-e5-small"
     chunk_size: int = Field(default=800, ge=100, le=5000)
     chunk_overlap: int = Field(default=120, ge=0, le=1000)
     

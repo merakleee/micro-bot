@@ -25,12 +25,18 @@ def split_sections(text: str) -> list[str]:
     paragraphs: list[str] = []
 
     for section in sections:
-        parts = re.split(r"\n\s*\n", section)
-        paragraphs.extend(
+        parts = [
             part.strip()
-            for part in parts
+            for part in re.split(r"\n\s*\n", section)
             if part.strip()
-        )
+        ]
+
+        # Keep a heading together with the paragraph that follows it,
+        # so a chunk never ends with an orphan heading.
+        if len(parts) > 1 and re.match(r"#{1,6}\s+", parts[0]):
+            parts[0:2] = [parts[0] + "\n\n" + parts[1]]
+
+        paragraphs.extend(parts)
 
     return paragraphs
 
@@ -40,6 +46,12 @@ def split_large_text(
     chunk_size: int,
     overlap: int,
 ) -> list[str]:
+    text = text.strip()
+
+    # A block that already fits is a single chunk (no duplicate tail).
+    if len(text) <= chunk_size:
+        return [text] if text else []
+
     step = chunk_size - overlap
     chunks: list[str] = []
 
@@ -48,6 +60,11 @@ def split_large_text(
 
         if chunk:
             chunks.append(chunk)
+
+        # The window reached the end of the text: stop, so the last
+        # step does not emit a short duplicate of the final characters.
+        if start + chunk_size >= len(text):
+            break
 
     return chunks
 
@@ -98,15 +115,19 @@ def chunk_text(
                 )
             )
 
-        raw_chunks.extend(
-            split_large_text(
-                section,
-                chunk_size,
-                overlap,
+        if len(section) <= chunk_size:
+            # The section fits on its own: it starts the next chunk,
+            # so it can merge with the sections that follow it.
+            current = section
+        else:
+            raw_chunks.extend(
+                split_large_text(
+                    section,
+                    chunk_size,
+                    overlap,
+                )
             )
-        )
-
-        current = ""
+            current = ""
 
     if current:
         raw_chunks.extend(
