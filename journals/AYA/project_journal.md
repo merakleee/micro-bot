@@ -54,3 +54,5 @@ The counter tests check database creation and persistence, quota enforcement and
 
 I implemented `app/llm/client.py` as a synchronous OpenRouter chat-completions client. It reads the provider URL, model, key, and timeout from settings; reserves quota before each attempt; releases reservations for failed attempts; retries once only for HTTP 429 and 5xx responses; validates response text and token usage; and maps provider/transport failures to the shared `llm_unavailable` or `rate_limited` JSON errors. Its injectable `httpx` transport lets tests use `MockTransport` without network access. `tests/test_llm_client.py` covers successful payload and usage parsing, timeout, 429 and 5xx retries, invalid JSON/response data, non-retryable 4xx, missing key, invalid input, quota exhaustion, and confirms failed calls do not stay in the quota.
 
+The LLM client and daily counter are currently independent of `/chat`; the chat route remains a stub until the RAG integration is ready.
+
