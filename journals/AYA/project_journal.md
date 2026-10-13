@@ -56,3 +56,7 @@ I implemented `app/llm/client.py` as a synchronous OpenRouter chat-completions c
 
 The LLM client and daily counter are currently independent of `/chat`; the chat route remains a stub until the RAG integration is ready.
 
+## Issue #17 — Evaluation set
+
+I created `evals/evaluation_set.json` with 40 questions, expected answers, and expected source documents. The cases cover public and members-only content, out-of-scope questions, member-only questions asked without authentication, follow-ups, and English, French, and Arabic. JSON keeps each case's fields structured and consistent, so a future evaluation script can load and process the set directly. The file is a reference dataset; it is not yet connected to an automated evaluator or `/chat`.
+
