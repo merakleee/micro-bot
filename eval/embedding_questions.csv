@@ -1,0 +1,24 @@
+id,question,language,expected_doc,type,verified,notes
+q001,Which department manages strategic partnerships with external organizations?,English,departments.md,factual,yes,External Relations
+q002,What is the Development department responsible for?,English,departments.md,factual,yes,Internal tools software and digital systems
+q003,What event is a multi-day technical hackathon and challenge?,English,events.md,factual,yes,Micro Hack
+q004,What is Algeria Game Challenge?,English,events.md,factual,yes,Annual game development competition with workshops conferences and trainings
+q005,Who is eligible to join MicroClub?,English,membership.md,cross_language,yes,The French membership document says current students are eligible
+q006,What are the three primary sections of MicroClub?,English,sections.md,factual,yes,IT Robotics and Game Development
+q007,Which department manages the club's public image and outreach?,English,departments.md,factual,yes,Marketing
+q008,Quels événements de MicroClub sont des compétitions de programmation ou de cybersécurité?,French,events.md,factual,yes,Micro Code and MCTF
+q009,Qu'est-ce que l'Algeria Game Challenge?,French,events.md,factual,yes,Compétition annuelle de développement de jeux avec ateliers conférences et formations
+q010,Comment s'effectue l'inscription à MicroClub?,French,membership.md,factual,yes,Via la plateforme officielle au début de chaque saison
+q011,Quel département gère les décisions d'admission et de refus des membres?,French,membership.md,factual,yes,Le département IR-HR
+q012,Quels sont les trois sections principales de MicroClub?,French,sections.md,factual,yes,IT Robotique et Game Development
+q013,Quels sous-domaines sont inclus dans la section informatique?,French,sections.md,factual,yes,Développement web mobile réseaux et cybersécurité et intelligence artificielle
+q014,Quel département développe l'identité visuelle et les graphiques du club?,French,departments.md,factual,yes,Design
+q015,ما هي الأقسام الرئيسية الثلاثة في MicroClub؟,Arabic,sections.md,cross_language,yes,قسم تكنولوجيا المعلومات والروبوتات وتطوير الألعاب
+q016,ما هو حدث Micro Club Capture The Flag؟,Arabic,events.md,cross_language,yes,مسابقة في الأمن السيبراني بنظام CTF
+q017,من يمكنه الانضمام إلى MicroClub؟,Arabic,membership.md,cross_language,yes,الطلاب المسجلون حاليا فقط
+q018,كيف تتم عملية التسجيل في MicroClub؟,Arabic,membership.md,cross_language,yes,عبر المنصة الرسمية في بداية كل موسم
+q019,أي قسم مسؤول عن بناء وصيانة الأدوات والأنظمة الرقمية الداخلية؟,Arabic,departments.md,cross_language,yes,قسم التطوير
+q020,ما هي المجالات الفرعية لقسم الروبوتات؟,Arabic,sections.md,cross_language,yes,الميكانيكا والتصميم ثلاثي الأبعاد والكهرباء والإلكترونيات وبرمجيات الروبوتات
+q021,What is the weather forecast for Algiers tomorrow?,English,,out_of_scope,yes,Weather information is not present in the provided documents
+q022,Quel est le menu de la cafétéria universitaire aujourd'hui?,French,,out_of_scope,yes,Cafeteria information is not present in the provided documents
+q023,ما هو موعد امتحان الرياضيات القادم؟,Arabic,,out_of_scope,yes,Exam schedules are not present in the provided documents

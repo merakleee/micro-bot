@@ -1,0 +1,85 @@
+{
+  "model": "intfloat/multilingual-e5-small",
+  "overall": {
+    "n": 20,
+    "hits": 19,
+    "hit_at_3": 0.95,
+    "mrr": 0.9099999999999999
+  },
+  "by_language": {
+    "en": {
+      "n": 7,
+      "hits": 6,
+      "hit_at_3": 0.8571428571428571,
+      "mrr": 0.8857142857142858
+    },
+    "fr": {
+      "n": 7,
+      "hits": 7,
+      "hit_at_3": 1.0,
+      "mrr": 0.9285714285714286
+    },
+    "ar": {
+      "n": 6,
+      "hits": 6,
+      "hit_at_3": 1.0,
+      "mrr": 0.9166666666666666
+    }
+  },
+  "same_language": {
+    "n": 8,
+    "hits": 8,
+    "hit_at_3": 1.0,
+    "mrr": 1.0
+  },
+  "cross_language": {
+    "n": 12,
+    "hits": 11,
+    "hit_at_3": 0.9166666666666666,
+    "mrr": 0.85
+  },
+  "truncation": {
+    "limit": 512,
+    "truncated": 0,
+    "max_tokens": 235,
+    "median_tokens": 142
+  },
+  "embed_corpus_s": 2.08,
+  "median_query_ms": 22.7,
+  "out_of_scope_top1": {
+    "q021": 0.773,
+    "q022": 0.785,
+    "q023": 0.771
+  },
+  "in_scope_top1": {
+    "min": 0.791,
+    "median": 0.861
+  },
+  "failures": [
+    {
+      "id": "q005",
+      "question": "Who is eligible to join MicroClub?",
+      "expected": [
+        "membership.md"
+      ],
+      "rank_of_expected": 5,
+      "top3": [
+        [
+          "about.md",
+          0.864
+        ],
+        [
+          "bureau.md",
+          0.863
+        ],
+        [
+          "departments.md",
+          0.859
+        ]
+      ]
+    }
+  ],
+  "load_s": 46.8,
+  "chunk_size": 800,
+  "overlap": 120
+}

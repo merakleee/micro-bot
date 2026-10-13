@@ -4,3 +4,5 @@ __pycache__/
 .pytest_cache/
 data/
 .vscode/
+.venv-bench/
+eval_run_e5.txt

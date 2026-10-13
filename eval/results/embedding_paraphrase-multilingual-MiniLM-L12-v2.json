@@ -1,0 +1,62 @@
+{
+  "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "overall": {
+    "n": 20,
+    "hits": 20,
+    "hit_at_3": 1.0,
+    "mrr": 0.9083333333333334
+  },
+  "by_language": {
+    "en": {
+      "n": 7,
+      "hits": 7,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "fr": {
+      "n": 7,
+      "hits": 7,
+      "hit_at_3": 1.0,
+      "mrr": 0.9285714285714286
+    },
+    "ar": {
+      "n": 6,
+      "hits": 6,
+      "hit_at_3": 1.0,
+      "mrr": 0.7777777777777778
+    }
+  },
+  "same_language": {
+    "n": 8,
+    "hits": 8,
+    "hit_at_3": 1.0,
+    "mrr": 0.9375
+  },
+  "cross_language": {
+    "n": 12,
+    "hits": 12,
+    "hit_at_3": 1.0,
+    "mrr": 0.8888888888888888
+  },
+  "truncation": {
+    "limit": 128,
+    "truncated": 17,
+    "max_tokens": 233,
+    "median_tokens": 140
+  },
+  "embed_corpus_s": 1.27,
+  "median_query_ms": 24.6,
+  "out_of_scope_top1": {
+    "q021": 0.235,
+    "q022": 0.264,
+    "q023": 0.488
+  },
+  "in_scope_top1": {
+    "min": 0.454,
+    "median": 0.696
+  },
+  "failures": [],
+  "load_s": 5.4,
+  "chunk_size": 800,
+  "overlap": 120
+}
