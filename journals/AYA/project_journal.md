@@ -38,5 +38,21 @@ I added Playwright to `requirements.txt` and installed Chromium with `playwright
 
 Micro Club builds its page with JavaScript, so a simple HTTP request with `httpx` and HTML parsing with BeautifulSoup cannot access the rendered content. Playwright lets the parser wait for the page to load and read the text from a real browser. Chromium is a practical browser to run headlessly and install through Playwright. This is a better fit for this JavaScript-rendered page than a static HTML parser; for regular pages, the lighter `httpx` and BeautifulSoup path is still enough.
 
-### Next ? 
+## Day 3
+
+## Issue #9 — LLM client and daily counter
+
+Before implementing the OpenRouter client, I clarified how the daily limit should work. The project brief sets a limit of 50 requests per day. Per the latest decision, only a valid successful completion remains counted. The UTC-date counter has a configurable limit that defaults to 50. A slot is reserved atomically before each provider attempt so concurrent requests cannot exceed the limit; failed HTTP responses, transport errors, and invalid responses release their reservations. A retry reserves separately. If the limit is reached, the app returns a JSON `rate_limited` error without contacting the model.
+
+The project already has OpenRouter settings, the `httpx` dependency, shared JSON error handling, and SQLite persistence for documents. The next implementation steps are to add configurable quota and timeout settings, store the daily request count in SQLite, build and test the client with mocked responses, then connect it to the chat flow when the RAG integration is ready.
+
+I implemented the SQLite reservation and release functions in `app/llm/daily_counter.py`. It creates its table automatically in the configured database, keys usage by UTC date, and uses SQLite immediate transactions plus a conditional upsert to make reservations atomic. A failed attempt can release its reserved slot; a valid successful completion leaves it counted. The caller reserves immediately before each provider HTTP attempt, including retries.
+
+I added `tests/test_daily_counter.py` with coverage for automatic database/table creation, the exact quota boundary, releasing a failed reservation, the JSON 429 error response, persistence across connections, UTC date rollover and offset conversion, naive datetime rejection, and concurrent reservations. The 9 counter tests pass.
+
+The counter tests check database creation and persistence, quota enforcement and JSON errors, releasing failed reservations, UTC day reset and timezone conversion, invalid dates, and concurrent requests.
+
+I implemented `app/llm/client.py` as a synchronous OpenRouter chat-completions client. It reads the provider URL, model, key, and timeout from settings; reserves quota before each attempt; releases reservations for failed attempts; retries once only for HTTP 429 and 5xx responses; validates response text and token usage; and maps provider/transport failures to the shared `llm_unavailable` or `rate_limited` JSON errors. Its injectable `httpx` transport lets tests use `MockTransport` without network access. `tests/test_llm_client.py` covers successful payload and usage parsing, timeout, 429 and 5xx retries, invalid JSON/response data, non-retryable 4xx, missing key, invalid input, quota exhaustion, and confirms failed calls do not stay in the quota.
+
+The LLM client and daily counter are currently independent of `/chat`; the chat route remains a stub until the RAG integration is ready.
 
