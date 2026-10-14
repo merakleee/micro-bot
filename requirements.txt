@@ -10,3 +10,4 @@ pypdf
 python-docx
 ocrmypdf
 sentence-transformers==6.1.0
+qdrant-client==1.19.1
