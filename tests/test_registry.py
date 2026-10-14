@@ -52,6 +52,15 @@ def test_list_returns_documents_in_insertion_order(isolated_registry):
     assert [d["title"] for d in documents] == [f"Doc {i}" for i in range(5)]
 
 
+def test_count_ready_documents_excludes_processing_and_failed(isolated_registry):
+    registry.create_document("ready one", "public", "hash-1", status="ready")
+    registry.create_document("processing", "public", "hash-2")
+    registry.create_document("failed", "members", "hash-3", status="failed")
+    registry.create_document("ready two", "members", "hash-4", status="ready")
+
+    assert registry.count_ready_documents() == 2
+
+
 def test_delete_removes_row_and_reports_existence(isolated_registry):
     doc_id = registry.create_document("Delete me", "public", "hash-delete")
 

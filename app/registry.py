@@ -140,6 +140,14 @@ def list_documents() -> list[DocumentRecord]:
     return [_row_to_document(row) for row in rows]
 
 
+def count_ready_documents() -> int:
+    with _connection() as connection:
+        row = connection.execute(
+            "SELECT COUNT(*) AS count FROM documents WHERE status = 'ready'"
+        ).fetchone()
+    return int(row["count"])
+
+
 def delete_document(doc_id: str) -> bool:
     with _connection() as connection:
         result = connection.execute(

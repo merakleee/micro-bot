@@ -54,6 +54,12 @@ class QdrantVectorStore:
             else create_payload_indexes
         )
 
+    def check_connection(self) -> None:
+        self._client.get_collections()
+
+    def close(self) -> None:
+        self._client.close()
+
     def _ensure_collection(self, vector_size: int) -> None:
         if not self._client.collection_exists(self._collection_name):
             self._client.create_collection(
