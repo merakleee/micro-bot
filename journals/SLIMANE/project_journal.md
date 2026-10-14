@@ -119,3 +119,21 @@ the repo apraoch (khiro)
     One OpenRouter LLM call
         ↓
     Return answer + sources + usage + latency
+
+How does MC BOT split documents?
+    It uses a rule-based process based on:
+
+    1. text normalization,
+
+    2. Markdown headings,
+
+    3. blank-line-separated paragraphs,
+
+    4. maximum character length,
+
+    5. overlap between neighboring chunks.
+
+
+## FIFTH DAY
+
+Idempotency. Doing the operation twice gives the same result as doing it once. You get it by hashing the file’s bytes (SHA-256) and asking the registry whether that hash exists before doing any work.
