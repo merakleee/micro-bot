@@ -165,3 +165,32 @@ def test_database_rejects_bad_values_even_without_python_checks(isolated_registr
             )
     finally:
         connection.close()
+
+
+def test_claim_new_document_creates_processing_row(isolated_registry):
+    claim = registry.claim_document(
+        title="Alpha",
+        visibility="public",
+        content_hash="hash-1",
+    )
+
+    assert claim.skipped is False
+    assert registry.get_document(claim.doc_id)["status"] == "processing"
+
+
+def test_claim_ready_same_visibility_skips(isolated_registry):
+    first = registry.claim_document(
+        title="Alpha",
+        visibility="public",
+        content_hash="hash-1",
+    )
+    registry.update_document_status(first.doc_id, "ready")
+
+    second = registry.claim_document(
+        title="Changed title",
+        visibility="public",
+        content_hash="hash-1",
+    )
+
+    assert second.doc_id == first.doc_id
+    assert second.skipped is True
