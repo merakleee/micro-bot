@@ -6,12 +6,22 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, TypedDict
 from uuid import uuid4
+from dataclasses import dataclass
+from threading import RLock
 
 from app.config import get_settings
 from app.errors import AppError
 
+
 _VISIBILITIES = {"public", "members"}
 _STATUSES = {"processing", "ready", "failed"}
+_claim_lock = RLock()
+
+
+@dataclass(frozen=True)
+class Claim:
+    doc_id: str
+    skipped: bool
 
 
 class DocumentRecord(TypedDict):
@@ -73,9 +83,21 @@ def _ensure_schema(connection: sqlite3.Connection) -> None:
         )
         """
     )
+
     connection.execute(
-        "CREATE INDEX IF NOT EXISTS idx_documents_content_hash ON documents (content_hash)"
+        """
+        CREATE INDEX IF NOT EXISTS idx_documents_content_hash
+        ON documents (content_hash)
+        """
     )
+
+    connection.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_documents_content_hash
+        ON documents (content_hash)
+        """
+    )
+
     connection.commit()
 
 
@@ -170,3 +192,86 @@ def update_document_status(doc_id: str, status: str, error: str | None = None) -
         connection.commit()
 
     return result.rowcount > 0
+
+
+def claim_document(
+    *,
+    title: str,
+    visibility: str,
+    content_hash: str,
+) -> Claim:
+    _validate_visibility(visibility)
+
+    with _claim_lock, _connection() as connection:
+        connection.execute("BEGIN IMMEDIATE")
+
+        row = connection.execute(
+            """
+            SELECT doc_id, visibility, status
+            FROM documents
+            WHERE content_hash = ?
+            """,
+            (content_hash,),
+        ).fetchone()
+
+        if row is not None:
+            if row["status"] == "ready":
+                if row["visibility"] == visibility:
+                    connection.commit()
+                    return Claim(
+                        doc_id=row["doc_id"],
+                        skipped=True,
+                    )
+
+                connection.rollback()
+                raise ValueError(
+                    "The file already exists with a different visibility."
+                )
+
+            connection.execute(
+                """
+                UPDATE documents
+                SET title = ?,
+                    visibility = ?,
+                    status = 'processing',
+                    error = NULL
+                WHERE doc_id = ?
+                """,
+                (title, visibility, row["doc_id"]),
+            )
+            connection.commit()
+
+            return Claim(
+                doc_id=row["doc_id"],
+                skipped=False,
+            )
+
+        doc_id = uuid4().hex
+
+        connection.execute(
+            """
+            INSERT INTO documents (
+                doc_id,
+                title,
+                visibility,
+                status,
+                error,
+                content_hash,
+                created_at
+            )
+            VALUES (?, ?, ?, 'processing', NULL, ?, ?)
+            """,
+            (
+                doc_id,
+                title,
+                visibility,
+                content_hash,
+                _utc_timestamp(),
+            ),
+        )
+        connection.commit()
+
+        return Claim(
+            doc_id=doc_id,
+            skipped=False,
+        )
