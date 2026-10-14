@@ -40,7 +40,7 @@ Micro Club builds its page with JavaScript, so a simple HTTP request with `httpx
 
 ## Day 3
 
-## Issue #9 — LLM client and daily counter
+### Issue #9 — LLM client and daily counter
 
 Before implementing the OpenRouter client, I clarified how the daily limit should work. The project brief sets a limit of 50 requests per day. Per the latest decision, only a valid successful completion remains counted. The UTC-date counter has a configurable limit that defaults to 50. A slot is reserved atomically before each provider attempt so concurrent requests cannot exceed the limit; failed HTTP responses, transport errors, and invalid responses release their reservations. A retry reserves separately. If the limit is reached, the app returns a JSON `rate_limited` error without contacting the model.
 
@@ -56,7 +56,21 @@ I implemented `app/llm/client.py` as a synchronous OpenRouter chat-completions c
 
 The LLM client and daily counter are currently independent of `/chat`; the chat route remains a stub until the RAG integration is ready.
 
-## Issue #17 — Evaluation set
+### Issue #17 — Evaluation set
 
 I created `evals/evaluation_set.json` with 40 questions, expected answers, and expected source documents. The cases cover public and members-only content, out-of-scope questions, member-only questions asked without authentication, follow-ups, and English, French, and Arabic. JSON keeps each case's fields structured and consistent, so a future evaluation script can load and process the set directly. The file is a reference dataset; it is not yet connected to an automated evaluator or `/chat`.
 
+
+## Day 4
+
+### Issue #6 — Vector store selection
+
+I chose Qdrant as the performance candidate for filtered vector search. Each point can hold a chunk's embedding, text, and payload metadata such as `doc_id`, `title`, and `visibility`. Public searches can require `visibility = public`, while member searches can allow both `public` and `members`; the application must choose the filter from the authenticated access level.
+
+Qdrant provides payload indexes and filter-aware vector search, which give it optimization options as the indexed corpus and number of filtered searches grow. FAISS focuses on nearest-neighbor search, so metadata filtering and deletion would need extra application code. SQLite would need a vector-search extension or custom search code. Chroma also supports metadata filters and could satisfy the issue; I chose Qdrant because it is open source (Apache 2.0), can be self-hosted with a single Docker command, and supports filtering on payload metadata such as `visibility` and `doc_id`. In server mode it also supports payload indexes on those fields, which are designed to speed up filtered searches as the corpus grows. Local mode does not use payload indexes, so any performance comparison should be run against a Qdrant server instance. I have not benchmarked Qdrant against the alternatives yet, so this choice rests on its feature set and on fit with the access-control design, not on measured speed.
+
+I implemented `QdrantVectorStore` in `app/vector_store.py`. It adds chunks with stable point IDs, deletes all chunks for a `doc_id`, and searches with a visibility filter chosen from the caller's access level. The default configuration persists data under `data/qdrant`; `QDRANT_URL` and `QDRANT_API_KEY` can connect to a Qdrant server. Payload indexes are created in server mode for `visibility` and `doc_id`; local mode does not use those indexes. The vector store is not yet connected to ingestion or `/chat`.
+
+The store also exposes `replace_document_chunks` to replace one document's indexed chunks, so chunks left over from an older, longer version are removed. It validates chunk ownership, embedding count, visibility, embedding dimensions, and compatibility with the existing collection before deleting the old data. Search also checks that returned Qdrant payloads contain all required fields and raises a clear `ValueError` if one is incomplete. The main operations are: `add_chunks` stores each chunk with its embedding and metadata; `delete_by_doc_id` removes every stored chunk belonging to one document; `search` finds the closest vectors while filtering results according to the caller's public or member access level.
+
+Tests use Qdrant's in-memory mode for behavior and an isolated temporary directory for persistence. They cover access filtering, member search, deletion, upsert and document replacement, preserving old data when replacement validation fails, collection dimension mismatch, incomplete payloads, persistence, NumPy vectors, and input validation. Verification: all 20 vector-store tests and all 91 project tests pass; the full suite reports one Starlette/httpx deprecation warning. Replacement validation occurs before deletion, but deletion and the subsequent upsert are separate Qdrant operations, so an unexpected storage failure between them could leave the document without its old or new chunks. This implementation does not yet make replacement atomic.
