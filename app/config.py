@@ -16,9 +16,16 @@ class Settings(BaseSettings):
     openrouter_model: str = "google/gemma-4-31b-it:free"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     embedding_model: str = "intfloat/multilingual-e5-small"
+
+    retrieval_threshold: float = Field(
+        default=0.79,
+        ge=-1.0,
+        le=1.0,
+    )
+
     chunk_size: int = Field(default=800, ge=100, le=5000)
     chunk_overlap: int = Field(default=120, ge=0, le=1000)
-    
+
     llm_daily_request_limit: int = Field(default=50, ge=1)
     llm_timeout_seconds: int = Field(default=30, ge=1)
 
