@@ -94,3 +94,17 @@ Added admin-protected `POST` and `GET /api/v1/documents` routes and `DELETE /api
 I implemented the public `POST /api/v1/feedback` endpoint. It accepts a non-empty `conversation_id`, a `rating` of `up` or `down`, and an optional comment limited to 1,000 characters. Valid feedback is saved in SQLite and the endpoint returns `201` with a `feedback_id`. Invalid input returns the standard `422` validation error; a database write failure returns a clean `503` error.
 
 I added contract tests for both ratings, comments present or absent, the 1,000-character boundary, invalid ratings, and empty conversation IDs. I ran the feedback, registry, document-route, and foundation tests: all 46 passed. The run reported one Starlette/httpx deprecation warning, with no test failures.
+
+### Structured logging
+
+Defined a JSON access-log record with a generated request ID, path, HTTP status, latency, LLM call and token counts, access level, and grounded status. Added ASGI middleware that emits one JSON line after each HTTP response (including streaming responses), exposes the request ID in the `X-Request-ID` response header, and uses zero or `null` defaults for chat metrics that are not yet attached. The record contains no headers, request bodies, API keys, or authentication tokens.
+
+Connected `/chat` request state to the access log. Successful responses now log the exact `usage` counters, access level, and `grounded` value; no-context refusals log zero usage and `grounded: false`. For non-chat routes and requests rejected before chat handling, usage defaults to zero and chat-only fields are `null`. If the LLM call fails before returning usage, its call/token counts are logged as `null` because retries make the exact values unavailable; errors before the LLM call retain zero counts. No credentials or authorization headers are logged.
+
+Added `tests/test_request_logging.py` for successful chat usage parity, no-context refusal, LLM failure, non-chat error defaults, request-ID response headers, and confirming query parameters and bearer credentials do not appear in logs. Added `docs/logging.md` with a JSON log sample whose usage and grounded fields match the example chat response. Verification: request-logging, chat, and health tests passed (12 passed, 1 skipped).
+
+### Full project readiness check
+
+The complete test suite passed: 195 passed, 1 skipped, with one existing Starlette/httpx deprecation warning. `pip check` found no broken requirements. The real `intfloat/multilingual-e5-small` embedding smoke check passed offline with 384-dimensional normalized vectors. In the initial local Uvicorn smoke check, `/api/v1/health` returned `200` and `/api/v1/chat` ran real embedding and local Qdrant retrieval, returning the expected no-context refusal with zero LLM calls because the database and Qdrant collection were empty at that point. The subsequent corpus test below ingested a document and created/populated the collection.
+
+

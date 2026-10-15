@@ -4,7 +4,7 @@ import time
 import uuid
 from typing import Literal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.auth import get_access_level
 from app.errors import AppError
@@ -29,8 +29,10 @@ router = APIRouter()
 @router.post("/chat", response_model=ChatResponse)
 def chat(
     req: ChatRequest,
+    request: Request,
     access: Literal["public", "members"] = Depends(get_access_level),
 ) -> ChatResponse:
+    request.state.access_level = access
     start = time.perf_counter()
     conversation_id = req.conversation_id or f"c_{uuid.uuid4().hex[:8]}"
     language = detect_language(req.message)
@@ -53,6 +55,7 @@ def chat(
         if exc.code != "no_relevant_context":
             raise
 
+        request.state.grounded = False
         conversation_memory.record_turn(
             conversation_id,
             req.message,
@@ -80,16 +83,23 @@ def chat(
         language,
     )
 
+    request.state.llm_calls = None
+    request.state.prompt_tokens = None
+    request.state.completion_tokens = None
     completion = create_chat_completion(
         prompt.messages,
         temperature=DEFAULT_TEMPERATURE,
         max_tokens=DEFAULT_MAX_TOKENS,
     )
+    request.state.llm_calls = completion.llm_calls
+    request.state.prompt_tokens = completion.prompt_tokens
+    request.state.completion_tokens = completion.completion_tokens
 
     answer, grounded = finalize_answer(
         completion.content,
         language,
     )
+    request.state.grounded = grounded
 
     conversation_memory.record_turn(
         conversation_id,
