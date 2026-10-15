@@ -103,10 +103,6 @@ Connected `/chat` request state to the access log. Successful responses now log 
 
 Added `tests/test_request_logging.py` for successful chat usage parity, no-context refusal, LLM failure, non-chat error defaults, request-ID response headers, and confirming query parameters and bearer credentials do not appear in logs. Added `docs/logging.md` with a JSON log sample whose usage and grounded fields match the example chat response. Verification: request-logging, chat, and health tests passed (12 passed, 1 skipped).
 
-### Full project readiness check
-
-The complete test suite passed: 195 passed, 1 skipped, with one existing Starlette/httpx deprecation warning. `pip check` found no broken requirements. The real `intfloat/multilingual-e5-small` embedding smoke check passed offline with 384-dimensional normalized vectors. In the initial local Uvicorn smoke check, `/api/v1/health` returned `200` and `/api/v1/chat` ran real embedding and local Qdrant retrieval, returning the expected no-context refusal with zero LLM calls because the database and Qdrant collection were empty at that point. The subsequent corpus test below ingested a document and created/populated the collection.
-
 ### Issue #19 — Docker
 
 Added a Dockerfile and `docker-compose.yml` for running the FastAPI service with Docker Compose. The image installs the OCR system packages and Playwright Chromium, then downloads the configured embedding model during the build. Compose passes configuration from shell variables or the local `.env` file, publishes port 8000 by default, and mounts `./data` so SQLite and local Qdrant data persist on the host. OpenRouter credentials remain optional for starting the API. Added `.dockerignore` to keep local secrets, data, tests, and development files out of the build context, and documented startup, health check, configuration, and shutdown in README. The image build and container startup were verified locally.
