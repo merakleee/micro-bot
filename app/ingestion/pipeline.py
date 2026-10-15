@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 from threading import Lock
-from turtle import title
 from typing import Protocol, Sequence
 
 from app import registry

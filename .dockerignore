@@ -1,0 +1,17 @@
+.git
+.venv
+.venv-bench
+__pycache__
+.pytest_cache
+.vscode
+.env
+.env.*
+!.env.example
+data
+debug.log
+eval_run_e5.txt
+evals
+tests
+journals
+docs
+corpus

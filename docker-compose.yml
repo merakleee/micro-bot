@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      MEMBER_TOKEN: ${MEMBER_TOKEN:-}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-}
+      DATABASE_PATH: data/registry.sqlite3
+      VECTOR_STORE_PATH: data/qdrant
+      QDRANT_URL: ${QDRANT_URL:-}
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-google/gemma-4-31b-it:free}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
+      RETRIEVAL_THRESHOLD: ${RETRIEVAL_THRESHOLD:-0.79}
+      CHUNK_SIZE: ${CHUNK_SIZE:-800}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-120}
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-10485760}
+      LLM_DAILY_REQUEST_LIMIT: ${LLM_DAILY_REQUEST_LIMIT:-50}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-30}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
