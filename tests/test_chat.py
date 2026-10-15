@@ -202,8 +202,8 @@ def test_chat_retrieves_members_content_for_authenticated_member(
 
 
 def test_chat_returns_refusal_when_retrieval_is_below_threshold(
-    client: TestClient,
-    monkeypatch: pytest.MonkeyPatch,
+    client,
+    monkeypatch,
 ):
     llm_calls: list[bool] = []
 
@@ -213,14 +213,7 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
             "The LLM must not be called when retrieval is refused."
         )
 
-    def refusing_retrieve(
-        query: str,
-        access_level: str,
-        k: int,
-        *,
-        embedder,
-        store,
-    ):
+    def refusing_retrieve(*args, **kwargs):
         raise AppError(
             404,
             "no_relevant_context",
@@ -247,6 +240,11 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
         "create_chat_completion",
         fail_if_called,
     )
+    monkeypatch.setattr(
+        chat_route,
+        "detect_language",
+        lambda text: "en",
+    )
 
     response = client.post(
         "/api/v1/chat",
@@ -255,13 +253,20 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
         },
     )
 
-    assert response.status_code == 404
-    assert response.json() == {
-        "error": {
-            "code": "no_relevant_context",
-            "message": "No sufficiently relevant information was found.",
-        }
+    assert response.status_code == 200
+    assert response.json()["grounded"] is False
+    assert response.json()["sources"] == []
+    assert response.json()["usage"] == {
+        "llm_calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
     }
+    assert response.json()["answer"] == (
+        "I don't know based on the available information."
+    )
+    assert response.json()["conversation_id"].startswith("c_")
+    assert isinstance(response.json()["latency_ms"], int)
+    assert response.json()["latency_ms"] >= 0
     assert llm_calls == []
 
 
@@ -399,3 +404,64 @@ def test_chat_passes_detected_language_to_prompt(
     assert captured["messages"][0]["content"] == (
         "Répondez en français."
     )
+
+
+def test_chat_returns_clean_error_when_llm_fails(
+    client,
+    monkeypatch,
+):
+    retrieved_result = make_result(score=0.92)
+
+    monkeypatch.setattr(
+        chat_route,
+        "detect_language",
+        lambda text: "en",
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "retrieve",
+        lambda *args, **kwargs: SimpleNamespace(
+            query="What is MicroClub?",
+            results=[retrieved_result],
+            best_score=0.92,
+            threshold=0.79,
+        ),
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "get_embedder",
+        lambda: object(),
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "get_vector_store",
+        lambda: object(),
+    )
+
+    def failing_completion(*args, **kwargs):
+        raise AppError(
+            503,
+            "llm_unavailable",
+            "The language model is unavailable.",
+        )
+
+    monkeypatch.setattr(
+        chat_route,
+        "create_chat_completion",
+        failing_completion,
+    )
+
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "What is MicroClub?",
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "error": {
+            "code": "llm_unavailable",
+            "message": "The language model is unavailable.",
+        }
+    }

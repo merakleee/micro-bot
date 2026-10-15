@@ -7,6 +7,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends
 
 from app.auth import get_access_level
+from app.errors import AppError
 from app.ingestion.runtime import get_embedder, get_vector_store
 from app.language import detect_language
 from app.llm.client import create_chat_completion
@@ -15,6 +16,7 @@ from app.prompting import (
     DEFAULT_TEMPERATURE,
     build_grounded_prompt,
     finalize_answer,
+    refusal_message,
 )
 from app.retrieval import retrieve
 from app.schemas import ChatRequest, ChatResponse, Source, Usage
@@ -29,16 +31,34 @@ def chat(
 ) -> ChatResponse:
     start = time.perf_counter()
     conversation_id = req.conversation_id or f"c_{uuid.uuid4().hex[:8]}"
-
     language = detect_language(req.message)
 
-    retrieval = retrieve(
-        req.message,
-        access,
-        5,
-        embedder=get_embedder(),
-        store=get_vector_store(),
-    )
+    try:
+        retrieval = retrieve(
+            req.message,
+            access,
+            5,
+            embedder=get_embedder(),
+            store=get_vector_store(),
+        )
+    except AppError as exc:
+        if exc.code != "no_relevant_context":
+            raise
+
+        return ChatResponse(
+            answer=refusal_message(language),
+            conversation_id=conversation_id,
+            grounded=False,
+            sources=[],
+            usage=Usage(
+                llm_calls=0,
+                prompt_tokens=0,
+                completion_tokens=0,
+            ),
+            latency_ms=int(
+                (time.perf_counter() - start) * 1000
+            ),
+        )
 
     prompt = build_grounded_prompt(
         retrieval.results,
@@ -76,5 +96,7 @@ def chat(
             prompt_tokens=completion.prompt_tokens,
             completion_tokens=completion.completion_tokens,
         ),
-        latency_ms=int((time.perf_counter() - start) * 1000),
+        latency_ms=int(
+            (time.perf_counter() - start) * 1000
+        ),
     )
