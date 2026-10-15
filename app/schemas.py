@@ -34,3 +34,23 @@ class ChatResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: Literal["ok", "degraded"]
     documents: int
+
+
+class DocumentResponse(BaseModel):
+    doc_id: str
+    title: str
+    visibility: Literal["public", "members"]
+    status: Literal["processing", "ready", "failed"]
+    error: str | None
+    created_at: str
+
+
+class DocumentUploadResponse(BaseModel):
+    doc_id: str
+    status: Literal["processing", "ready", "failed"]
+    skipped: bool
+
+
+class DocumentDeleteResponse(BaseModel):
+    doc_id: str
+    deleted: bool

@@ -82,3 +82,9 @@ I added `TextEmbedder` in `app/embeddings.py` to turn document passages and sear
 ### Issue #14 — Real `/health`
 
 Updated `/api/v1/health` to report the number of ready SQLite documents and return `degraded` if the database count or Qdrant connectivity check fails. The endpoint does not call the LLM. Added a registry count function and a Qdrant connection check; health-created Qdrant clients are closed after the probe. Tests cover the ready-document count, healthy response, and degraded responses for database and vector-store failures. Verification: 28 focused health/registry/foundation tests and all 104 project tests pass; one Starlette/httpx deprecation warning remains.
+
+## Day 5
+
+### Documents management API
+
+Added admin-protected `POST` and `GET /api/v1/documents` routes and `DELETE /api/v1/documents/{doc_id}`. Uploads accept Markdown, PDF, and DOCX, validate visibility, and enforce the configurable `MAX_UPLOAD_BYTES` limit (10 MiB by default). Uploads use the existing ingestion pipeline; listing omits internal content hashes, and deletion removes Qdrant chunks before the registry entry. Unknown document IDs return JSON 404 errors. Tests cover admin authentication, invalid visibility, unsupported and oversized uploads, listing, unknown IDs, and deleting an uploaded document then confirming vector search returns no matching chunks. Verification: all 9 focused document tests pass. The other tests pass when `tests/test_foundations.py` is excluded (129 passed, 1 skipped); two tests in that existing file try to load the real embedding model and fail here because the Hugging Face cache is inaccessible.

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     chunk_size: int = Field(default=800, ge=100, le=5000)
     chunk_overlap: int = Field(default=120, ge=0, le=1000)
+    max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1)
 
     llm_daily_request_limit: int = Field(default=50, ge=1)
     llm_timeout_seconds: int = Field(default=30, ge=1)
