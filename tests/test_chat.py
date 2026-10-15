@@ -34,6 +34,30 @@ def make_result(
     )
 
 
+def fake_completion(*args, **kwargs):
+    return SimpleNamespace(
+        content="MicroClub information retrieved.",
+        prompt_tokens=10,
+        completion_tokens=5,
+        llm_calls=1,
+    )
+
+
+def patch_chat_dependencies(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(
+        chat_route,
+        "get_vector_store",
+        lambda: object(),
+    )
+    monkeypatch.setattr(
+        chat_route,
+        "create_chat_completion",
+        fake_completion,
+    )
+
+
 def test_chat_returns_retrieved_sources(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
@@ -72,16 +96,7 @@ def test_chat_returns_retrieved_sources(
         "retrieve",
         fake_retrieve,
     )
-    monkeypatch.setattr(
-        chat_route,
-        "get_embedder",
-        lambda: object(),
-    )
-    monkeypatch.setattr(
-        chat_route,
-        "get_vector_store",
-        lambda: object(),
-    )
+    patch_chat_dependencies(monkeypatch)
 
     response = client.post(
         "/api/v1/chat",
@@ -94,21 +109,23 @@ def test_chat_returns_retrieved_sources(
 
     body = response.json()
 
-    assert body["answer"] == "Relevant context retrieved."
+    assert body["answer"] == "MicroClub information retrieved."
     assert body["grounded"] is True
     assert body["usage"] == {
-        "llm_calls": 0,
-        "prompt_tokens": 0,
-        "completion_tokens": 0,
+        "llm_calls": 1,
+        "prompt_tokens": 10,
+        "completion_tokens": 5,
     }
     assert len(body["conversation_id"]) == 10
     assert body["conversation_id"].startswith("c_")
-    assert len(body["sources"]) == 1
-    assert body["sources"][0] == {
-        "doc_id": "doc-123",
-        "title": "About Micro Club",
-        "snippet": "This is retrieved context.",
-    }
+
+    assert body["sources"] == [
+        {
+            "doc_id": "doc-123",
+            "title": "About Micro Club",
+            "snippet": "This is retrieved context.",
+        }
+    ]
 
     assert captured == {
         "query": "What is Micro Club?",
@@ -152,19 +169,8 @@ def test_chat_retrieves_members_content_for_authenticated_member(
         "retrieve",
         fake_retrieve,
     )
-    monkeypatch.setattr(
-        chat_route,
-        "get_embedder",
-        lambda: object(),
-    )
-    monkeypatch.setattr(
-        chat_route,
-        "get_vector_store",
-        lambda: object(),
-    )
+    patch_chat_dependencies(monkeypatch)
 
-    # Replace this value with the member token configured in your test
-    # environment if authentication is enabled in your project.
     response = client.post(
         "/api/v1/chat",
         headers={
@@ -175,20 +181,24 @@ def test_chat_retrieves_members_content_for_authenticated_member(
         },
     )
 
-    # If MEMBER_TOKEN is configured, the test needs that configured value.
-    # Without it, the bearer token is correctly rejected.
     if response.status_code == 401:
         pytest.skip(
-            "Set MEMBER_TOKEN to the test-member-token value to run "
-            "the authenticated-member route test."
+            "Set MEMBER_TOKEN=test-member-token to run the "
+            "authenticated-member route test."
         )
 
     assert response.status_code == 200
     assert captured["access_level"] == "members"
 
     body = response.json()
-    assert body["sources"][0]["doc_id"] == "members-doc"
-    assert body["sources"][0]["title"] == "Members Information"
+
+    assert body["sources"] == [
+        {
+            "doc_id": "members-doc",
+            "title": "Members Information",
+            "snippet": "This is retrieved context.",
+        }
+    ]
 
 
 def test_chat_returns_refusal_when_retrieval_is_below_threshold(
@@ -197,7 +207,7 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
 ):
     llm_calls: list[bool] = []
 
-    def fake_llm_call(*args, **kwargs):
+    def fail_if_called(*args, **kwargs):
         llm_calls.append(True)
         raise AssertionError(
             "The LLM must not be called when retrieval is refused."
@@ -232,14 +242,10 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
         "get_vector_store",
         lambda: object(),
     )
-
-    # This assignment verifies that the test has an explicit LLM-call
-    # sentinel. The current Issue #8 chat route does not call an LLM yet.
     monkeypatch.setattr(
         chat_route,
-        "fake_llm_call",
-        fake_llm_call,
-        raising=False,
+        "create_chat_completion",
+        fail_if_called,
     )
 
     response = client.post(
@@ -250,10 +256,7 @@ def test_chat_returns_refusal_when_retrieval_is_below_threshold(
     )
 
     assert response.status_code == 404
-
-    body = response.json()
-
-    assert body == {
+    assert response.json() == {
         "error": {
             "code": "no_relevant_context",
             "message": "No sufficiently relevant information was found.",
@@ -278,6 +281,94 @@ def test_chat_preserves_supplied_conversation_id(
             threshold=0.79,
         ),
     )
+    patch_chat_dependencies(monkeypatch)
+
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "Existing conversation",
+            "conversation_id": "conversation-123",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["conversation_id"] == "conversation-123"
+    assert body["answer"] == "MicroClub information retrieved."
+    assert body["grounded"] is True
+    assert body["usage"]["llm_calls"] == 1
+
+
+def test_chat_passes_detected_language_to_prompt(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    captured: dict[str, object] = {}
+    retrieved_result = make_result(score=0.91)
+
+    monkeypatch.setattr(
+        chat_route,
+        "detect_language",
+        lambda text: "fr",
+    )
+
+    monkeypatch.setattr(
+        chat_route,
+        "retrieve",
+        lambda *args, **kwargs: SimpleNamespace(
+            query="Que fait le club ?",
+            results=[retrieved_result],
+            best_score=0.91,
+            threshold=0.79,
+        ),
+    )
+
+    def fake_prompt_builder(
+        chunks,
+        question,
+        language,
+    ):
+        captured["language"] = language
+
+        return SimpleNamespace(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Répondez en français.",
+                },
+                {
+                    "role": "user",
+                    "content": "context",
+                },
+            ],
+            included_results=chunks,
+        )
+
+    monkeypatch.setattr(
+        chat_route,
+        "build_grounded_prompt",
+        fake_prompt_builder,
+    )
+
+    def fake_french_completion(*args, **kwargs):
+        captured["messages"] = args[0]
+        captured["temperature"] = kwargs["temperature"]
+        captured["max_tokens"] = kwargs["max_tokens"]
+
+        return SimpleNamespace(
+            content="Le club organise des événements.",
+            prompt_tokens=10,
+            completion_tokens=8,
+            llm_calls=1,
+        )
+
+    monkeypatch.setattr(
+        chat_route,
+        "create_chat_completion",
+        fake_french_completion,
+    )
     monkeypatch.setattr(
         chat_route,
         "get_embedder",
@@ -292,10 +383,19 @@ def test_chat_preserves_supplied_conversation_id(
     response = client.post(
         "/api/v1/chat",
         json={
-            "message": "Existing conversation",
-            "conversation_id": "conversation-123",
+            "message": "Que fait le club ?",
         },
     )
 
     assert response.status_code == 200
-    assert response.json()["conversation_id"] == "conversation-123"
+
+    body = response.json()
+
+    assert body["answer"] == "Le club organise des événements."
+    assert body["grounded"] is True
+    assert captured["language"] == "fr"
+    assert captured["temperature"] == 0.1
+    assert captured["max_tokens"] == 300
+    assert captured["messages"][0]["content"] == (
+        "Répondez en français."
+    )
