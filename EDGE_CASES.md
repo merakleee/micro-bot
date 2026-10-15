@@ -24,3 +24,21 @@
 - E5 receives text prefixed with `passage: `, while the original unprefixed text is stored in the vector store.
 - The embedding model is loaded lazily and reused across files.
 - The command-line loader reads only `corpus/manifest.csv`, uses the manifest title and visibility, continues after individual failures, and exits with an error if any file fails.
+
+## Issue #11: Conversation memory decisions
+
+- Conversation memory is in-process and intentionally non-persistent.
+- It is keyed by `conversation_id`.
+- Each conversation keeps at most 4 recent questions.
+- At most 1,000 conversations are retained.
+- Retrieval queries are capped at 2,000 characters.
+- Follow-up retrieval queries combine eligible previous questions with the current question.
+- Previous assistant answers are not reused in retrieval or prompts yet.
+- Members requests may reuse public and members questions from the same conversation.
+- Public requests may reuse only public questions from the same conversation.
+- A public request reusing a members conversation never receives members-only retrieval context.
+- The vector store remains the final access-control boundary and always receives the current request access level.
+- Conversations are evicted least-recently-used when the dictionary reaches its limit.
+- Memory is cleared when the process restarts.
+- Conversation history is not shared between processes or workers.
+- Persistent conversation storage is intentionally deferred to a later issue.

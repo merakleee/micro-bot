@@ -9,6 +9,14 @@ from app.errors import AppError
 from app.main import create_app
 from app.routes import chat as chat_route
 from app.vector_store import SearchResult
+from app.conversation_memory import conversation_memory
+
+
+@pytest.fixture(autouse=True)
+def clear_conversation_memory():
+    conversation_memory._conversations.clear()
+    yield
+    conversation_memory._conversations.clear()
 
 
 @pytest.fixture
@@ -465,3 +473,175 @@ def test_chat_returns_clean_error_when_llm_fails(
             "message": "The language model is unavailable.",
         }
     }
+
+    def test_chat_follow_up_uses_previous_question_for_retrieval(
+        client,
+        monkeypatch,
+    ):
+        conversation_id = "conversation-follow-up"
+        queries = []
+
+        retrieved_result = make_result(
+            score=0.92,
+            title="Events",
+            doc_id="events-doc",
+        )
+
+        def fake_retrieve(
+            query,
+            access_level,
+            k,
+            *,
+            embedder,
+            store,
+        ):
+            queries.append(query)
+
+            return SimpleNamespace(
+                query=query,
+                results=[retrieved_result],
+                best_score=0.92,
+                threshold=0.79,
+            )
+
+        monkeypatch.setattr(
+            chat_route,
+            "retrieve",
+            fake_retrieve,
+        )
+        patch_chat_dependencies(monkeypatch)
+
+        first_response = client.post(
+            "/api/v1/chat",
+            json={
+                "conversation_id": conversation_id,
+                "message": "What events does MicroClub organize?",
+            },
+        )
+
+        second_response = client.post(
+            "/api/v1/chat",
+            json={
+                "conversation_id": conversation_id,
+                "message": "Where are they held?",
+            },
+        )
+
+        assert first_response.status_code == 200
+        assert second_response.status_code == 200
+        assert len(queries) == 2
+
+        assert queries[0] == (
+            "What events does MicroClub organize?"
+        )
+        assert queries[1] == (
+            "What events does MicroClub organize? "
+            "Where are they held?"
+        )
+
+    def test_public_reusing_members_conversation_does_not_reuse_members_context(
+        client,
+        monkeypatch,
+    ):
+        conversation_id = "conversation-access-change"
+        calls = []
+
+        members_result = make_result(
+            score=0.95,
+            doc_id="members-doc",
+            title="Members",
+            visibility="members",
+        )
+        public_result = make_result(
+            score=0.90,
+            doc_id="public-doc",
+            title="Public",
+            visibility="public",
+        )
+
+        def fake_retrieve(
+            query,
+            access_level,
+            k,
+            *,
+            embedder,
+            store,
+        ):
+            calls.append(
+                {
+                    "query": query,
+                    "access_level": access_level,
+                }
+            )
+
+            result = (
+                members_result
+                if access_level == "members"
+                else public_result
+            )
+
+            return SimpleNamespace(
+                query=query,
+                results=[result],
+                best_score=0.95,
+                threshold=0.79,
+            )
+
+        monkeypatch.setattr(
+            chat_route,
+            "retrieve",
+            fake_retrieve,
+        )
+        patch_chat_dependencies(monkeypatch)
+
+        members_response = client.post(
+            "/api/v1/chat",
+            headers={
+                "Authorization": "Bearer member-secret",
+            },
+            json={
+                "conversation_id": conversation_id,
+                "message": "What are the member benefits?",
+            },
+        )
+
+        if members_response.status_code == 401:
+            pytest.skip(
+                "Set MEMBER_TOKEN=member-secret to run this test."
+            )
+
+        public_response = client.post(
+            "/api/v1/chat",
+            json={
+                "conversation_id": conversation_id,
+                "message": "Tell me more.",
+            },
+        )
+
+        assert members_response.status_code == 200
+        assert public_response.status_code == 200
+        assert len(calls) == 2
+
+        assert calls[0]["access_level"] == "members"
+        assert calls[1]["access_level"] == "public"
+
+        assert calls[0]["query"] == (
+            "What are the member benefits?"
+        )
+
+        assert calls[1]["query"] == "Tell me more."
+        assert "member benefits" not in calls[1]["query"]
+
+        public_body = public_response.json()
+
+        assert public_body["sources"] == [
+            {
+                "doc_id": "public-doc",
+                "title": "Public",
+                "snippet": "This is retrieved context.",
+            }
+        ]
+        assert all(
+            source["doc_id"] != "members-doc"
+            for source in public_body["sources"]
+        )

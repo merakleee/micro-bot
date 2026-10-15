@@ -20,10 +20,12 @@ from app.prompting import (
 )
 from app.retrieval import retrieve
 from app.schemas import ChatRequest, ChatResponse, Source, Usage
+from app.conversation_memory import conversation_memory
 
 router = APIRouter()
 
 
+@router.post("/chat", response_model=ChatResponse)
 @router.post("/chat", response_model=ChatResponse)
 def chat(
     req: ChatRequest,
@@ -33,9 +35,15 @@ def chat(
     conversation_id = req.conversation_id or f"c_{uuid.uuid4().hex[:8]}"
     language = detect_language(req.message)
 
+    retrieval_query = conversation_memory.build_retrieval_query(
+        conversation_id,
+        req.message,
+        access,
+    )
+
     try:
         retrieval = retrieve(
-            req.message,
+            retrieval_query,
             access,
             5,
             embedder=get_embedder(),
@@ -44,6 +52,12 @@ def chat(
     except AppError as exc:
         if exc.code != "no_relevant_context":
             raise
+
+        conversation_memory.record_turn(
+            conversation_id,
+            req.message,
+            access,
+        )
 
         return ChatResponse(
             answer=refusal_message(language),
@@ -75,6 +89,12 @@ def chat(
     answer, grounded = finalize_answer(
         completion.content,
         language,
+    )
+
+    conversation_memory.record_turn(
+        conversation_id,
+        req.message,
+        access,
     )
 
     sources = [
