@@ -1,4 +1,4 @@
-﻿# AYA's Project Journal
+# AYA's Project Journal
 
 ## Day 1
 
@@ -88,3 +88,9 @@ Updated `/api/v1/health` to report the number of ready SQLite documents and retu
 ### Documents management API
 
 Added admin-protected `POST` and `GET /api/v1/documents` routes and `DELETE /api/v1/documents/{doc_id}`. Uploads accept Markdown, PDF, and DOCX, validate visibility, and enforce the configurable `MAX_UPLOAD_BYTES` limit (10 MiB by default). Uploads use the existing ingestion pipeline; listing omits internal content hashes, and deletion removes Qdrant chunks before the registry entry. Unknown document IDs return JSON 404 errors. Tests cover admin authentication, invalid visibility, unsupported and oversized uploads, listing, unknown IDs, and deleting an uploaded document then confirming vector search returns no matching chunks. Verification: all 9 focused document tests pass. The other tests pass when `tests/test_foundations.py` is excluded (129 passed, 1 skipped); two tests in that existing file try to load the real embedding model and fail here because the Hugging Face cache is inaccessible.
+
+### Feedback endpoint
+
+I implemented the public `POST /api/v1/feedback` endpoint. It accepts a non-empty `conversation_id`, a `rating` of `up` or `down`, and an optional comment limited to 1,000 characters. Valid feedback is saved in SQLite and the endpoint returns `201` with a `feedback_id`. Invalid input returns the standard `422` validation error; a database write failure returns a clean `503` error.
+
+I added contract tests for both ratings, comments present or absent, the 1,000-character boundary, invalid ratings, and empty conversation IDs. I ran the feedback, registry, document-route, and foundation tests: all 46 passed. The run reported one Starlette/httpx deprecation warning, with no test failures.
