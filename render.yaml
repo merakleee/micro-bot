@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: micro-bot
+    runtime: docker
+    plan: 1c-2g
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    disk:
+      name: micro-bot-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_PATH
+        value: /app/data/registry.sqlite3
+      - key: VECTOR_STORE_PATH
+        value: /app/data/qdrant
+      - key: MEMBER_TOKEN
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: google/gemma-4-31b-it:free
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: EMBEDDING_MODEL
+        value: intfloat/multilingual-e5-small
+      - key: RETRIEVAL_THRESHOLD
+        value: "0.79"
+      - key: CHUNK_SIZE
+        value: "800"
+      - key: CHUNK_OVERLAP
+        value: "120"
+      - key: MAX_UPLOAD_BYTES
+        value: "10485760"
+      - key: LLM_DAILY_REQUEST_LIMIT
+        value: "50"
+      - key: LLM_TIMEOUT_SECONDS
+        value: "30"
