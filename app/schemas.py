@@ -54,3 +54,20 @@ class DocumentUploadResponse(BaseModel):
 class DocumentDeleteResponse(BaseModel):
     doc_id: str
     deleted: bool
+
+
+FeedbackRating = Literal["up", "down"]
+FeedbackComment = Annotated[str, StringConstraints(
+    strip_whitespace=True, max_length=1000)]
+ConversationId = Annotated[str, StringConstraints(
+    strip_whitespace=True, min_length=1)]
+
+
+class FeedbackRequest(BaseModel):
+    conversation_id: ConversationId
+    rating: FeedbackRating
+    comment: FeedbackComment | None = None
+
+
+class FeedbackResponse(BaseModel):
+    feedback_id: int
