@@ -18,6 +18,24 @@ MicroBot is a document-grounded assistant for MicroClub. It retrieves relevant p
 - Record request IDs, latency, retrieval grounding status, and model token usage in structured logs.
 - Run locally with Docker Compose or as a Python application.
 
+## Project presentation
+
+[Open the MicroBot presentation on Canva](https://canva.link/ogmmnixu8jyqz4l).
+
+## Screenshots
+
+### Grounded answer about MicroClub sections
+
+The local Swagger UI returned a grounded answer with the `sections` document among its sources.
+
+![Local chat response about MicroClub sections](<pics/Screenshot%202026-10-16%20154459.png>)
+
+### Grounded answer about MicroClub's mission
+
+The local Swagger UI returned a grounded answer based on the `about` document.
+
+![Local chat response about MicroClub's mission](<pics/Screenshot%202026-10-16%20153713.png>)
+
 
 ## Architecture
 
@@ -290,9 +308,6 @@ render.yaml          Render service blueprint
 
 - Render's free instance has limited memory and may be slow after idling. E5-small is loaded by the API process, so a health-check timeout or restart can occur under memory pressure.
 - The free OpenRouter model can be rate-limited. The application retries a provider `429` once, then returns a `rate_limited` error if the retry also fails.
-- Local conversation memory is in-process and bounded; it is not shared between multiple replicas and is lost when the process restarts.
-- Render's local filesystem is ephemeral. Qdrant Cloud keeps vectors independently, but SQLite document records are not durable unless a persistent volume or external database is configured.
-- A document marked `ready` in SQLite does not alone prove its vectors are searchable. Verify Qdrant retrieval and the `sources` returned by `/chat`.
 - Retrieval quality depends on the source text, chunking, embedding model, and similarity threshold. Poorly encoded or malformed corpus files can cause missed answers.
 
 ## License and project status
