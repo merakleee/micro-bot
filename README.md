@@ -2,9 +2,6 @@
 
 MicroBot is a document-grounded assistant for MicroClub. It retrieves relevant passages from an ingested corpus, sends those passages to a language model, and returns an answer with source information. When it cannot find sufficiently relevant context, it is designed to say that it does not know instead of inventing an answer.
 
-**Live service:** [https://micro-bot-1-7gih.onrender.com](https://micro-bot-1-7gih.onrender.com)
-
-**Interactive API documentation:** [Render Swagger UI](https://micro-bot-1-7gih.onrender.com/docs#/) or `http://localhost:8000/docs` for a local instance.
 
 ## Features
 
