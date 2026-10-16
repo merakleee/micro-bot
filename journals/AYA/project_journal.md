@@ -114,7 +114,7 @@ The full project test suite passed: 206 passed, 1 skipped, with one existing Sta
 
 ### Issue #20 — Render free deployment preparation
 
-Added `render.yaml` for a free Render web service built from the repository Dockerfile. It sets `/api/v1/health` as the health check, defines non-secret application settings, and leaves the member, admin, and OpenRouter credentials for entry as dashboard secrets. No credentials are stored in the repository. Render was chosen solely because its plan is free, not for a technical advantage. The deployed service is available at [https://micro-bot-wb07.onrender.com](https://micro-bot-wb07.onrender.com).
+Added `render.yaml` for a free Render web service built from the repository Dockerfile. It sets `/api/v1/health` as the health check, defines non-secret application settings, and leaves the member, admin, and OpenRouter credentials for entry as dashboard secrets. No credentials are stored in the repository. Render was chosen solely because its plan is free, not for a technical advantage. The deployed service is available at [https://micro-bot-1-7gih.onrender.com](https://micro-bot-1-7gih.onrender.com).
 
 Render's free instance has limited RAM, sleeps after inactivity, and uses ephemeral storage. During deployment, Render reported health-check timeouts and instance failures followed by recovery. The RAM limit contributes to these reliability problems: loading the Sentence Transformers model and handling ingestion can put pressure on the service. The logs show timeouts, although they do not by themselves prove that every failure was caused by RAM.
 
@@ -124,5 +124,5 @@ Qdrant stores the vector representation of each ingested document chunk together
 
 The app can use local Qdrant for development or connect to Qdrant Cloud through `QDRANT_URL` and `QDRANT_API_KEY`. Qdrant Cloud was added to keep vector data outside Render's ephemeral filesystem and make it available to the deployed service through environment variables. Qdrant Cloud provides vector storage and search; it does not run the E5 embedding model or remove the app's RAM requirement. Render still loads E5 to embed uploads and incoming questions, so the free instance's memory limit remains a deployment constraint.
 
-The live service URL is [https://micro-bot-wb07.onrender.com](https://micro-bot-wb07.onrender.com). A successful `/api/v1/health` response confirms that the API is reachable, but reachability alone does not confirm the full RAG flow is reliable. The Qdrant collection, registry status, and `/chat` sources must also be checked when validating an ingestion.
+The live service URL is [https://micro-bot-1-7gih.onrender.com](https://micro-bot-1-7gih.onrender.com). A successful `/api/v1/health` response confirms that the API is reachable, but reachability alone does not confirm the full RAG flow is reliable. The Qdrant collection, registry status, and `/chat` sources must also be checked when validating an ingestion.
 
