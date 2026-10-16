@@ -1,8 +1,12 @@
 import secrets
 from typing import Literal
 from fastapi import Depends, Header
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.config import Settings, get_settings
 from app.errors import AppError
+
+
+_bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def _matches(given: str, expected: str) -> bool:
@@ -13,13 +17,12 @@ def _matches(given: str, expected: str) -> bool:
 
 
 def get_access_level(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     settings: Settings = Depends(get_settings),
 ) -> Literal["public", "members"]:
-    if authorization is None:
+    if credentials is None:
         return "public"
-    scheme, _, token = authorization.partition(" ")
-    if scheme.lower() != "bearer" or not _matches(token.strip(), settings.member_token):
+    if not _matches(credentials.credentials.strip(), settings.member_token):
         raise AppError(401, "unauthorized",
                        "Invalid or malformed bearer token.")
     return "members"
