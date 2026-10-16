@@ -241,19 +241,6 @@ curl.exe -X POST "http://localhost:8000/api/v1/chat" `
 - Document management uses `X-Admin-Key: <ADMIN_API_KEY>`; the admin key is not a member token.
 - Never put secrets in source code, screenshots, issue reports, or committed files.
 
-## Render deployment
-
-`render.yaml` describes the Docker-based Render web service and sets `/api/v1/health` as its health-check path. To deploy:
-
-1. Push the repository to GitHub and connect the repository/branch to Render.
-2. Set `OPENROUTER_API_KEY`, `ADMIN_API_KEY`, `MEMBER_TOKEN`, `QDRANT_URL`, and `QDRANT_API_KEY` as service environment variables/secrets in Render.
-3. Confirm `OPENROUTER_MODEL` is `google/gemma-4-31b-it:free` and `EMBEDDING_MODEL` is `intfloat/multilingual-e5-small`.
-4. Deploy and wait for `/api/v1/health` to pass.
-5. Upload a document through `/docs`, confirm it is ready, then test `/api/v1/chat` with a question answered by that document.
-
-Render was selected because its plan is free. That choice has operational trade-offs: the free service has limited RAM, can spin down after inactivity, and has ephemeral local storage. The project has observed health-check timeouts and instance failures followed by recovery. Loading E5-small and processing documents can increase memory pressure. Qdrant Cloud can persist vectors outside Render, but the SQLite registry remains local unless a persistent volume or external database is configured. A healthy endpoint alone does not prove that the corpus is indexed or that chat retrieval works.
-
-The Render public URL is [https://micro-bot-1-7gih.onrender.com](https://micro-bot-1-7gih.onrender.com). The public service uses the configuration that has actually been deployed; changes in `render.yaml` take effect only after the corresponding repository changes are deployed and any required dashboard variables are set.
 
 ## Tests and diagnostics
 
