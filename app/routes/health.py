@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app import registry
+from app.ingestion.runtime import get_vector_store
 from app.schemas import HealthResponse
-from app.vector_store import QdrantVectorStore
 
 router = APIRouter()
 
@@ -24,8 +24,6 @@ def health():
 
 
 def _check_vector_store() -> None:
-    store = QdrantVectorStore()
-    try:
-        store.check_connection()
-    finally:
-        store.close()
+    # Local Qdrant only allows one open client per storage path in a process.
+    # Reuse the application client shared by ingestion and retrieval.
+    get_vector_store().check_connection()
